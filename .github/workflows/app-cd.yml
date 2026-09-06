@@ -49,8 +49,18 @@ jobs:
           aws eks update-kubeconfig --name cluster --region us-east-1
 
       - name: Deploy to EKS
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
+          cd starter/backend/k8s
+          kustomize edit set image mp-backend=$ECR_REGISTRY/mp-backend:latest
+          cd ../../../
+          
+          cd starter/frontend/k8s
+          kustomize edit set image mp-frontend=$ECR_REGISTRY/mp-frontend:latest
+          cd ../../../
+
           kubectl apply -k starter/backend/k8s/
           kubectl apply -k starter/frontend/k8s/
-          kubectl rollout status deployment/backend
-          kubectl rollout status deployment/frontend
+          kubectl rollout status deployment/backend --timeout=180s
+          kubectl rollout status deployment/frontend --timeout=180s
