@@ -34,16 +34,16 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
-      - name: Build, Tag, and Push Frontend Image
+     - name: Build, Tag, and Push Frontend Image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: mp-frontend
           IMAGE_TAG: ${{ github.sha }}
+          BACKEND_URL: "http://ac48c9f551a2f4e4f9b3a887f110d79e-1146320562.us-east-1.elb.amazonaws.com"
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest starter/frontend
+          docker build --build-arg REACT_APP_MOVIE_API_URL=$BACKEND_URL -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest starter/frontend
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
-
       - name: Update Kubeconfig
         run: |
           aws eks update-kubeconfig --name cluster --region us-east-1
