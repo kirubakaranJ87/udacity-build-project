@@ -52,15 +52,11 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          cd starter/backend/k8s
-          kustomize edit set image mp-backend=$ECR_REGISTRY/mp-backend:latest
-          cd ../../../
-          
-          cd starter/frontend/k8s
-          kustomize edit set image mp-frontend=$ECR_REGISTRY/mp-frontend:latest
-          cd ../../../
-
           kubectl apply -k starter/backend/k8s/
           kubectl apply -k starter/frontend/k8s/
+          
+          kubectl set image deployment/backend backend=$ECR_REGISTRY/mp-backend:${{ github.sha }}
+          kubectl set image deployment/frontend frontend=$ECR_REGISTRY/mp-frontend:${{ github.sha }}
+
           kubectl rollout status deployment/backend --timeout=180s
           kubectl rollout status deployment/frontend --timeout=180s
