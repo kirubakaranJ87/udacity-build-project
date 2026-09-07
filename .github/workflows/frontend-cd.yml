@@ -1,4 +1,4 @@
-name: Deploy Frontend to AWS EKS
+name: Frontend CD
 
 on:
   push:
@@ -6,7 +6,10 @@ on:
       - main
     paths:
       - 'starter/frontend/**'
+  workflow_dispatch:
 
+permissions:
+  contents: read
 jobs:
   deploy:
     runs-on: ubuntu-latest
